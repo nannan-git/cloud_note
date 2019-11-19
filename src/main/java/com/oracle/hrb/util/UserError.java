@@ -1,0 +1,11 @@
+package com.oracle.hrb.util;
+
+public enum UserError {
+	USERNAME_NULL,
+	PASSWORD_NULL,
+	NICKNAME_NULL,
+	USERNAME_REPEAT,
+	SUCCESS,
+	USERNAME_OR_PASSWORD_ERROR,
+	USER_NONE
+}
