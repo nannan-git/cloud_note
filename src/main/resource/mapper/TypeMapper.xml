@@ -7,7 +7,7 @@
 		t_desc AS tDesc
 	</sql>
 	<select id="findByNormal" resultType="com.oracle.hrb.bean.NotebookType">
-		select <include refid="col"/> from cn_notebook_type  where t_name == 'normal';
+		select <include refid="col"/> from cn_notebook_type  where t_name = 'normal';
 	</select>
 	<select id="findBySpecial" resultType="com.oracle.hrb.bean.NotebookType">
 		select <include refid="col"/> from cn_notebook_type  where t_name != 'normal';

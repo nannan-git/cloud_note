@@ -21,10 +21,10 @@
 	</delete>
 
 	<select id="findByUserSpecial" resultType="com.oracle.hrb.bean.Notebook">
-		select <include refid="col"/> from cn_notebook nb join cn_notebook_type nbt on nb.nbt_id==nbt.t_id where u_id=#{id} and nbt.t_name!='normal'
+		select <include refid="col"/> from cn_notebook nb join cn_notebook_type nbt on nb.nbt_id=nbt.t_id where u_id=#{id} and nbt.t_name!='normal'
 	</select>
 	<select id="findByUserNormal" resultType="com.oracle.hrb.bean.Notebook">
-		select <include refid="col"/> from cn_notebook nb join cn_notebook_type nbt on nb.nbt_id==nbt.t_id where u_id=#{id} and nbt.t_name='normal'
+		select <include refid="col"/> from cn_notebook nb join cn_notebook_type nbt on nb.nbt_id=nbt.t_id where u_id=#{id} and nbt.t_name='normal'
 	</select>
 	<select id="findByName" resultType="com.oracle.hrb.bean.Notebook">
 		select <include refid="col"/> from cn_notebook  where u_id=#{userId} and nb_name=#{name}
