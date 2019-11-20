@@ -15,6 +15,8 @@ import java.util.UUID;
 public class UserSerive {
 	@Autowired
 	private UserDao userDao;
+	@Autowired
+	private NoteBookService noteBookService;
 
 	@Transactional(readOnly = true)
 	public Map<String,Object> login(String name , String password){
@@ -72,8 +74,9 @@ public class UserSerive {
 		password = SHA256Util.sha256(password);
 		password = SHA256Util.sha256(password);
 		u.setPassword(password);
-		System.out.println("user" + u);
+	//	System.out.println("user" + u);
 		userDao.add(u);
+		noteBookService.initSpecialNotebook(u.getId());
 		result.put("success",true);
 		return result;
 	}
