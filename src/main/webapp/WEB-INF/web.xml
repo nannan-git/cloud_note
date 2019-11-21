@@ -4,6 +4,12 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+ <!--解决默认不支持 HTTP协议发送put和delete请求问题-->
+  <filter>
+    <filter-name>putFilter</filter-name>
+    <filter-class>org.springframework.web.filter.FormContentFilter</filter-class>
+  </filter>
+  <!--解决中文编码问题-->
   <filter>
     <filter-name>encode</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -12,6 +18,10 @@
       <param-value>utf-8</param-value>
     </init-param>
   </filter>
+  <filter-mapping>
+    <filter-name>putFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+  </filter-mapping>
   <filter-mapping>
     <filter-name>encode</filter-name>
     <url-pattern>*.do</url-pattern>

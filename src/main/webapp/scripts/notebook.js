@@ -6,6 +6,10 @@ function loadNoteBook(){
 		url:"/notebook.do",
 		method:"get",
 		success:function (data) {
+		    if(data == 'fail'){
+		        location.href ="login.html";
+		        return;
+            }
 			var special =data['special'];
 			var normal = data['normal'];
 			var list = $('#first_side_right .contacts-list');
@@ -28,7 +32,7 @@ function loadNoteBook(){
 				}
 			}
 			//绑定普通笔记本
-			for(var i=0;normal.length;i++){
+			for(var i=0;i < normal.length;i++){
 				var nb =normal[i];
 				list.append('<li class="online">\n' +
                     '<a class=\'unchecked\'>\n' +
@@ -57,9 +61,27 @@ function addNoteBook(){
 		method:"post",
 		data:{name:name},
 		success:function (data) {
+            if(data == 'fail'){
+                location.href ="login.html";
+                return;
+            }
 			if(data['success']){
                 sweetAlert("添加笔记本成功","恭喜你！","success");
                 var nb = data['notebook'];
+                //关闭弹窗
+				$('.cancle').click();
+				//新添加的节点放置在普通笔记本的第一位，且呈现选中状态
+                $('#first_side_right .contacts-list li:first')
+					.after('<li class="online">\n' +
+                    '<a class=\'unchecked\'>\n' +
+                    '<i class="fa fa-book" title="笔记本" rel="tooltip-bottom"></i>'
+						+nb.name+
+                    '<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button>\n' +
+                    '</a>\n' +
+                    '</li>');
+                $('#first_side_right .contacts-list li:first').next().data('notebook',nb);
+                //新加入笔记本被选中状态
+                $('#first_side_right .contacts-list li:first').next().click();
 			}else if(data['name_null']){
                 sweetAlert("笔记本名称不能为空","出错了！","error");
 			}else if(data['name_repeat']){
@@ -73,14 +95,68 @@ function addNoteBook(){
  * 重命名笔记本
  */
 function updateNoteBook(){
-	alert("重命名笔记本");
+    var name = $('#input_notebook_rename').val().trim();
+    var li =$('#first_side_right .contacts-list li .checked').parent();
+    var nb =li.data('notebook');
+    var id =nb.id;
+    if(name==null|| name.length==0){
+        sweetAlert("笔记本名称不能为空","出错了！","error");
+        return;
+    }
+    $.ajax({
+        url:"/notebook.do",
+        method:"put",
+        data:{name:name,id:id},
+        success:function (data) {
+            if(data == 'fail'){
+                location.href ="login.html";
+                return;
+            }
+            if(data['success']){
+                sweetAlert("修改笔记本成功","恭喜你！","success");
+                //关闭弹窗
+                $('.cancle').click();
+                //修改笔记本显示名称
+               li.html('<a class=\'unchecked\'>\n' +
+                        '<i class="fa fa-book" title="笔记本" rel="tooltip-bottom"></i>'
+                        +name+
+                        '<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button>\n' +
+                        '</a>\n');
+                //将新笔记本数据重新绑定到节点
+                nb.name =name;
+               li.data('notebook',nb);
+                //被修改笔记本被选中状态
+               li.click();
+            }else if(data['name_null']){
+                sweetAlert("笔记本名称不能为空","出错了！","error");
+            }else if(data['name_repeat']){
+                sweetAlert("笔记本名称已存在","出错了！","error");
+            }
+        }
+    })
 }
 
 /***
  * 删除笔记本
  */
 function deleteNoteBook(){
-	alert("删除笔记本");
+    var li =$('#first_side_right .contacts-list li .checked').parent();
+    var id =li.data('notebook').id;
+    $.ajax({
+        url:"/notebook.do",
+        method:"delete",
+        data:{id:id},
+        success:function (data) {
+            if(data == 'fail'){
+                location.href ="login.html";
+                return;
+            }
+            li.remove();
+            $('.close').click();
+            $('#first_side_right .contacts-list li:first').click();
+            sweetAlert("笔记本名称已被删除","成功删除！","success");
+        }
+    });
 }
 
 /**

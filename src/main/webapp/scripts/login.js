@@ -88,10 +88,8 @@ function register() {
                         closeOnConfirm:false
                     },
                     function () {
-                        $("#zc").attr("class","sig sig_out");
-                        $("#dl").attr("class","log log_in");
+                        location.href="login.html";
                     });
-
 			}else {
                 if (data['name_null']) {
                     $('#regist_username').attr('data-content', '用户名不能为空');
