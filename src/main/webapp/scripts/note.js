@@ -143,10 +143,28 @@ function moveNote(li,notebookId){
  * 分享笔记
  */
 function createShareNote(){
-	$("footer div strong").text("分享成功").parent().fadeIn(100);
-	setTimeout(function(){
-		$("footer div").fadeOut(500);
-	}, 1500);
+    var noteId = $('#second_side_right .contacts-list li .checked').parent().data('note').id;
+    $.ajax({
+        url:"/share.do",
+        method:"post",
+        data:{noteId:noteId},
+        success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
+            if(data){
+                $("footer div strong").text("分享成功").parent().fadeIn(100);
+                setTimeout(function(){
+                    $("footer div").fadeOut(500);
+                }, 1500);
+            }else{
+                alert("空的笔记不能分享");
+            }
+
+        }
+    })
+
 }
 
 /***
@@ -211,7 +229,31 @@ function deleteRecycleNote(){
  * 搜索分享笔记列表
  */
 function getShareNoteList(){
-	alert("搜索分享笔记列表");
+	var keyword =$('#search_note').val().trim();
+	if(keyword==null||keyword.length==0){
+	    return false;
+    }
+    $.ajax({
+        url:"/share.do",
+        method:"get",
+        data:{title:keyword},
+        success:function (data) {
+            $('#pc_part_2,#pc_part_3,#pc_part_4,#pc_part_7,#pc_part_8').hide();
+            $('#pc_part_6,#pc_part_5').show();
+            $('#pc_part_6 .contacts-list').empty();
+            for(var i=0;i<data.length;i++){
+                var share =data[i];
+                $('#pc_part_6 .contacts-list').append('<li class="online">\n' +
+                    '<a href="#">\n' +
+                    '<i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>'+share.title+'<button type="button" class="btn btn-default btn-xs btn_position btn_like"><i class="fa fa-star-o"></i></button><div class="time"></div>\n' +
+                    '</a>\n' +
+                    '</li>');
+                $('#pc_part_6 .contacts-list li:last').data("share",share);
+            }
+            $('#pc_part_6 .contacts-list li:first').click();
+        }
+        
+    })
 }
 
 /***
