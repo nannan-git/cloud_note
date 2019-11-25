@@ -113,19 +113,15 @@ function updateNormalNote(){
  */
 function deleteNormalNote(){
     var notebookId= $('#rollback_button').data("notebook").id;
-    moveNote(notebookId);
+    var li = $('#second_side_right .contacts-list li .checked').parent();
+    moveNote(li,notebookId);
 }
 
 /***
  * 移动笔记
  */
-function moveNote(notebookId){
-	var note = $('#second_side_right .contacts-list li .checked').parent().data('note');
-	var noteId=note.id;
-	if(notebookId==null){
-         notebookId=$('#moveSelect').val();
-    }
-
+function moveNote(li,notebookId){
+    var noteId = li.data('note').id;
     $.ajax({
         url:"/note/move.do",
         method:"put",
@@ -135,9 +131,10 @@ function moveNote(notebookId){
                 location.href="login.html";
                 return;
             }
-            $('#second_side_right .contacts-list li .checked').parent().remove();
-            $('#second_side_right .contacts-list li:first').click();
+            var parent=li.parent();
+            li.remove();
             $('.close').click();
+            parent.children('li:first').click();
         }
     })
 }
@@ -156,7 +153,26 @@ function createShareNote(){
  * 查询回收站笔记列表
  */
 function getRecycleNoteList(){
-	alert("查询回收站笔记列表");
+    var nb =$('#rollback_button').data('notebook');
+    var notebookId =nb.id;
+    $.ajax({
+        url:"/note.do",
+        method:"get",
+        data:{notebookId:notebookId},
+        success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
+            $('#four_side_right .contacts-list').html('');
+            for(var i = 0;i<data.length;i++){
+                var note = data[i];
+                $('#four_side_right .contacts-list').append('<li class="disable"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>'+note.title+'&nbsp;&nbsp;&nbsp;<span style="font-size: 10px;">('+ new Date(note.modifyTime).getFullYear()+'/'+(new Date(note.modifyTime).getMonth()+1)+'/'+new Date(note.modifyTime).getDate()+' ' +new Date(note.modifyTime).getHours()+':'+new Date(note.modifyTime).getMinutes()+')<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button><button type="button" class="btn btn-default btn-xs btn_position_2 btn_replay"><i class="fa fa-reply"></i></button></a></li>');
+                $('#four_side_right .contacts-list li:last').data('note',note);
+                $('#four_side_right .contacts-list li:first').click();
+            }
+        }
+    })
 }
 
 /***
@@ -164,13 +180,31 @@ function getRecycleNoteList(){
  */
 function getRecycleNoteDetail() {
 	console.log("查看回收站笔记内容");
+    var note=$('#four_side_right .contacts-list li .checked').parent().data('note');
+    $('#noput_note_title').html(note.title);
+    $('#note_body').html(note.body);
 }
 
 /***
  * 删除回收站笔记
  */
 function deleteRecycleNote(){
-	alert("删除回收站笔记");
+	var li =$('#four_side_right .contacts-list li .checked').parent();
+	var noteId =li.data('note').id;
+	$.ajax({
+        url:"/note.do",
+        method:"delete",
+        data:{id:noteId},
+        success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
+            li.remove();
+            $('#four_side_right .contacts-list li:first').click();
+            $('.cancle').click();
+        }
+    })
 }
 
 /***
