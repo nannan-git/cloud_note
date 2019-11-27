@@ -15,7 +15,7 @@
 		insert into cn_favorites(f_id, nb_id,s_id) values(#{id},#{notebookId},#{share.id})
 	</insert>
 	<delete id="delete">
-		delete from cn_favorites where s_id=#{id}
+		delete from cn_favorites where f_id=#{id}
 	</delete>
 
 	<select id="findByNoteBookId" resultType="com.oracle.hrb.bean.Favorites">

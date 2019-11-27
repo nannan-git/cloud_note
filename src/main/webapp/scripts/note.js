@@ -242,6 +242,10 @@ function getShareNoteList(){
         method:"get",
         data:{title:keyword},
         success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
             $('#pc_part_2,#pc_part_3,#pc_part_4,#pc_part_7,#pc_part_8').hide();
             $('#pc_part_6,#pc_part_5').show();
             $('#pc_part_6 .contacts-list').empty();
@@ -282,6 +286,10 @@ function likeShareNote(shareId,dom){
         method:"post",
         data:{notebookId:notebookId,shareId:shareId},
         success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
             if(data){
                 alert("收藏成功");
             }else{
@@ -295,21 +303,55 @@ function likeShareNote(shareId,dom){
  * 加载收藏笔记
  */
 function getLikeNoteList(likeNoteId){
-	alert("加载收藏笔记");
+	var notebookId = $('#like_button').data("notebook").id;
+	$.ajax({
+        url:"/favorites.do",
+        method:"get",
+        data:{notebookId:notebookId},
+        success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
+            for(var i=0;i<data.length;i++){
+                var f = data[i];
+                $('#pc_part_7 .contacts-list').append('<li class="idle"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>'+f.share.title+'<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button></a></li>')
+                $('#pc_part_7 .contacts-list li:last').data('favorites',f);
+            }
+            $('#pc_part_7 .contacts-list li:first').click();
+        }
+
+    })
 }
 
 /***
  * 查看收藏笔记内容
  */
 function getLikeNoteDetail(noteId) {
-	console.log("查看收藏笔记内容");
+	var f =$('#pc_part_7 .contacts-list li .checked').parent().data('favorites');
+	$('#noput_note_title').html(f.share.title);
+	$('#note_body').html(f.share.body);
 }
 
 /***
  * 删除收藏笔记
  */
 function deleteLikeNote(noteId,dom){
-	alert("删除收藏笔记");
+    var f =$('#pc_part_7 .contacts-list li .checked').parent().data('favorites');
+    $.ajax({
+        url:"/favorites.do",
+        method:"delete",
+        data:{id:f.id},
+        success:function (data) {
+            if(data=='fail'){
+                location.href='login.html';
+                return;
+            }
+            $('#pc_part_7 .contacts-list li .checked').parent().remove();
+            $('#pc_part_7 .contacts-list li:first').click();
+            $('.cancle').click();
+        }
+    })
 }
 
 /***
