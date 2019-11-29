@@ -23,7 +23,8 @@ public class ActivityNoteController {
     }
 
     @GetMapping
-    public Object list(String activityId){
-        return  activityNoteService.activityNoteList(activityId);
+    public Object list(String activityId,HttpSession session){
+        User user =(User)session.getAttribute("user");
+        return  activityNoteService.activityNoteList(activityId,user.getId());
     }
 }

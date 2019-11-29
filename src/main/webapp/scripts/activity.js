@@ -73,10 +73,20 @@ function getNoteActivitys(){
 		success:function (data) {
 			$('#first_action .contacts-list').empty();
 			for(var i=0;i<data.length;i++){
-				var n=data[i];
+				var activityNote=data[i]['activityNote'];
+				var upDown = data[i]['upDown'];
+				var upState="fa-thumbs-o-up" ;
+				var downState="fa-thumbs-o-down";
+				if(upDown !=null){
+                    if(upDown.state ==1){
+                        upState ="fa-thumbs-up";
+                    }else{
+                        downState ="fa-thumbs-down";
+                    }
+                }
 				$('#first_action .contacts-list').append('<li class="online"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom">' +
-					'</i>'+n.share.title+'<button type="button" class="btn btn-default btn-xs btn_position_3 btn_up"><i class="fa fa-thumbs-o-up"></i></button><button type="button" class="btn btn-default btn-xs btn_position_2 btn_down"><i class="fa fa-thumbs-o-down"></i></button><button type="button" class="btn btn-default btn-xs btn_position btn_like"><i class="fa fa-star-o"></i></button></a></li>');
-                $('#first_action .contacts-list li:last').data('activityNote',n);
+					'</i>'+activityNote.share.title+'<button type="button" class="btn btn-default btn-xs btn_position_3 btn_up" style="margin-right: 20px;"><i class="fa ' + upState + '"></i><i id="up">'+activityNote.up+'</i></button><button type="button" class="btn btn-default btn-xs btn_position_2 btn_down"><i class="fa  ' + downState + '"></i><i id="down">'+activityNote.down+'</i></button><button type="button" class="btn btn-default btn-xs btn_position btn_like"><i class="fa fa-star-o"></i></button></a></li>');
+                $('#first_action .contacts-list li:last').data('activityNote',activityNote);
                 $('#first_action .contacts-list li:first').click();
 			}
         }
@@ -88,6 +98,9 @@ function getNoteActivitys(){
  */
 function getNoteActivityDetail(){
 	console.log("查询活动笔记内容");
+	var an = $('#first_action .contacts-list li .checked').parent().data('activityNote');
+	$("#content_body").html('<h4><strong>笔记标题：</strong>'+an.share.title+'</h4>'+
+    '<div>'+an.share.body+'</div>');
 }
 
 /***
@@ -113,6 +126,7 @@ function getSelectNoteBook(){
                         break;
                 }
             }
+            $('#select_notebook .contacts-list li').not($('#select_notebook .contacts-list li:first')).remove()
             //绑定普通笔记本
             for(var i=0;i < normal.length;i++){
                 var nb =normal[i];
@@ -188,13 +202,73 @@ function likeActivityNote() {
 /***
  *	顶笔记
  */
-function up() {
-	alert("顶笔记");
+function up(button) {
+	changeState(button,1);
 }
 
 /***
  *	踩笔记
  */
-function down(noteActivityId, dom) {
-	alert("踩笔记");
+function down(button) {
+	changeState(button,2);
+}
+function changeState(button,state) {
+    var activityNoteId = $(button).parent().parent().data('activityNote').id;
+    $.ajax({
+        url:"/upDown.do",
+        method:"post",
+        data:{activityNoteId:activityNoteId,state:state},
+        success:function () {
+            if(state==1){
+                var i=$(button).children('.fa');
+                if(i.hasClass('fa-thumbs-o-up')){
+                    i.removeClass('fa-thumbs-o-up');
+                    i.addClass('fa-thumbs-up');
+                    //修改踩按钮样式
+                    $(button).next().children('.fa').removeClass('fa-thumbs-down');
+                    $(button).next().children('.fa').addClass('fa-thumbs-o-down');
+
+                    var up =parseInt($(button).children('#up').html());
+                    $(button).children('#up').html(up+1);
+                    var down =parseInt($(button).next().children('#down').html());
+                    if(down>0){
+                        down--;
+                        $(button).next().children('#down').html(down==0?'0':down);
+                    }
+
+                }else{
+                    i.removeClass('fa-thumbs-up');
+                    i.addClass('fa-thumbs-o-up');
+                    var up =parseInt($(button).children('#up').html());
+                     up--;
+                    $(button).children('#up').html(up==0?'0':up);
+                }
+            }else{
+                var i=$(button).children('.fa');
+                if(i.hasClass('fa-thumbs-o-down')){
+                    i.removeClass('fa-thumbs-o-down');
+                    i.addClass('fa-thumbs-down');
+                    //修改踩按钮样式
+                    $(button).prev().children('.fa').removeClass('fa-thumbs-up');
+                    $(button).prev().children('.fa').addClass('fa-thumbs-o-up');
+
+                    var down =parseInt($(button).children('#down').html());
+                    $(button).children('#down').html(down+1);
+                    var up =parseInt($(button).prev().children('#up').html());
+                    if(up>0){
+                        up--;
+                        $(button).prev().children('#up').html(up==0?'0':up);
+                    }
+                }else{
+                    i.removeClass('fa-thumbs-down');
+                    i.addClass('fa-thumbs-o-down');
+
+                    var down =parseInt($(button).children('#down').html());
+                    down--;
+                    $(button).children('#down').html(down==0?'0':down);
+                }
+            }
+        }
+
+    })
 }
