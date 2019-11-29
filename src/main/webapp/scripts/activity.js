@@ -64,7 +64,23 @@ function countDown() {
  * 查询指定活动下已参加活动的笔记列表
  */
 function getNoteActivitys(){
-	alert("查询参加活动的笔记列表");
+	//alert("查询参加活动的笔记列表");
+	var activityId = location.hash.substr(1);
+	$.ajax({
+		url:"/activityNote.do",
+		method:"get",
+		data:{activityId:activityId},
+		success:function (data) {
+			$('#first_action .contacts-list').empty();
+			for(var i=0;i<data.length;i++){
+				var n=data[i];
+				$('#first_action .contacts-list').append('<li class="online"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom">' +
+					'</i>'+n.share.title+'<button type="button" class="btn btn-default btn-xs btn_position_3 btn_up"><i class="fa fa-thumbs-o-up"></i></button><button type="button" class="btn btn-default btn-xs btn_position_2 btn_down"><i class="fa fa-thumbs-o-down"></i></button><button type="button" class="btn btn-default btn-xs btn_position btn_like"><i class="fa fa-star-o"></i></button></a></li>');
+                $('#first_action .contacts-list li:last').data('activityNote',n);
+                $('#first_action .contacts-list li:first').click();
+			}
+        }
+	})
 }
 
 /***
@@ -78,22 +94,88 @@ function getNoteActivityDetail(){
  * 查询可选择的笔记本
  */
 function getSelectNoteBook(){
-	alert("查询可选择的笔记本");
+	$.ajax({
+        url:"/notebook.do",
+        method:"get",
+        success:function (data) {
+            if(data == 'fail'){
+                location.href ="login.html";
+                return;
+            }
+            var special =data['special'];
+            var normal = data['normal'];
+            //绑定特殊笔记本
+            for(var i=0;i<special.length;i++){
+                var  nb = special[i];
+                switch (nb.name){
+                    case '默认':
+                        $('#select_notebook .contacts-list li:first').data("notebook",nb);
+                        break;
+                }
+            }
+            //绑定普通笔记本
+            for(var i=0;i < normal.length;i++){
+                var nb =normal[i];
+                $('#select_notebook .contacts-list').append('<li class="online"><a ><i class="fa fa-book" title="online" rel="tooltip-bottom"></i>'+nb.name+'</a></li>');
+                $('#select_notebook .contacts-list li:last').data("notebook",nb);
+            }
+            $('#select_notebook .contacts-list li:first').click();
+        }
+	})
 }
 
 /***
  * 查询可选择的笔记
  */
 function getSelectNoteList(){
-	alert("查询可选择的笔记");
+    var li =$('#select_notebook .contacts-list li .checked').parent();
+    var nb =li.data('notebook');
+    var notebookId =nb.id;
+    $.ajax({
+        url:"/note.do",
+        method:"get",
+        data:{notebookId:notebookId},
+        success:function (data) {
+            if(data=='fail'){
+                location.href="login.html";
+                return;
+            }
+            $('#select_note .contacts-list').html('');
+            for(var i = 0;i<data.length;i++){
+                var note = data[i];
+                $('#select_note .contacts-list').append('<li class="online"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>'+note.title+'</a></li>');
+                $('#select_note .contacts-list li:last').data('note',note);
+                $('#select_note .contacts-list li:first').click();
+            }
+        }
+    })
 }
 
 /***
  *	将用户选择的笔记参加活动
  */
 function createNoteActivity(){
-	alert("将用户选择的笔记参加活动");
-	$('.close,.cancle').trigger('click');
+	var note =$('#select_note .contacts-list li .checked').parent().data('note');
+    var activityId = location.hash.substr(1);
+
+	$.ajax({
+		url:"/activityNote.do",
+		method:"post",
+		data:{noteId:note.id,activityId:activityId},
+		success:function (data) {
+			if(data){
+                //刷新页面
+                location.reload();
+                $('.close,.cancle').trigger('click');
+            }else{
+                $('.close,.cancle').trigger('click');
+                alert("笔记不能为空或者此笔记已经参加过活动");
+            }
+
+        }
+	})
+
+
 }
 
 /***

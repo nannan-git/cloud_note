@@ -313,6 +313,7 @@ function getLikeNoteList(likeNoteId){
                 location.href="login.html";
                 return;
             }
+            $('#pc_part_7 .contacts-list').empty();
             for(var i=0;i<data.length;i++){
                 var f = data[i];
                 $('#pc_part_7 .contacts-list').append('<li class="idle"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>'+f.share.title+'<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button></a></li>')
@@ -358,7 +359,7 @@ function deleteLikeNote(noteId,dom){
  * 加载本用户参加活动笔记列表
  */
 function getNoteActivityList(noteBookId){
-	alert("加载本用户参加活动笔记列表");
+	console.log("加载本用户参加活动笔记列表");
 }
 
 /***
